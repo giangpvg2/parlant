@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "items": {
+    "default": {
+      "required_fields": [
+        "full_name",
+        "phone",
+        "job_id"
+      ],
+      "field_rules": {
+        "full_name": {
+          "label": "họ tên",
+          "type": "text",
+          "min_length": 2,
+          "max_length": 150
+        },
+        "phone": {
+          "label": "số điện thoại",
+          "type": "phone",
+          "pattern": "^0[0-9]{9}$"
+        },
+        "email": {
+          "label": "email",
+          "type": "email",
+          "max_length": 254
+        },
+        "experience_years": {
+          "label": "số năm kinh nghiệm",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 80
+        },
+        "available_date": {
+          "label": "ngày có thể bắt đầu (YYYY-MM-DD)",
+          "type": "date"
+        },
+        "preferred_location": {
+          "label": "khu vực muốn làm việc",
+          "type": "text",
+          "max_length": 150
+        },
+        "preferred_shift": {
+          "label": "ca làm mong muốn",
+          "type": "choice",
+          "choices": [
+            "day",
+            "rotating",
+            "any"
+          ]
+        },
+        "skills": {
+          "label": "kỹ năng đã có",
+          "type": "text",
+          "max_length": 500
+        }
+      }
+    }
+  }
+}

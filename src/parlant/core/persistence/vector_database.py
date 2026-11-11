@@ -1,0 +1,233 @@
+# Copyright 2026 Emcie Co Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License")
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Generic,
+    Mapping,
+    Optional,
+    Sequence,
+    TypeVar,
+    TypedDict,
+)
+from typing_extensions import Required, override
+
+from parlant.core import async_utils
+from parlant.core.common import JSONSerializable, Version
+from parlant.core.nlp.embedding import Embedder
+from parlant.core.persistence.common import ObjectId, Where
+from parlant.core.tracer import Tracer
+
+
+class BaseDocument(TypedDict, total=False):
+    id: ObjectId
+    version: Version.String
+    content: str
+    checksum: Required[str]
+
+
+TDocument = TypeVar("TDocument", bound=BaseDocument)
+
+
+@dataclass(frozen=True)
+class VectorCollectionIndex:
+    field: str
+
+
+async def identity_loader(doc: BaseDocument) -> BaseDocument:
+    return doc
+
+
+@dataclass(frozen=True)
+class InsertResult:
+    acknowledged: bool
+
+
+@dataclass(frozen=True)
+class UpdateResult(Generic[TDocument]):
+    acknowledged: bool
+    matched_count: int
+    modified_count: int
+    updated_document: Optional[TDocument]
+
+
+@dataclass(frozen=True)
+class DeleteResult(Generic[TDocument]):
+    acknowledged: bool
+    deleted_count: int
+    deleted_document: Optional[TDocument]
+
+
+@dataclass(frozen=True)
+class SimilarDocumentResult(Generic[TDocument]):
+    document: TDocument
+    distance: float
+
+    def __hash__(self) -> int:
+        return hash(str(self.document))
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, SimilarDocumentResult):
+            return bool(self.document == value.document)
+        return False
+
+
+class VectorDatabase(ABC):
+    @abstractmethod
+    async def create_collection(
+        self,
+        name: str,
+        schema: type[TDocument],
+        embedder: Embedder,
+    ) -> VectorCollection[TDocument]: ...
+
+    @abstractmethod
+    async def get_collection(
+        self,
+        name: str,
+        schema: type[TDocument],
+        embedder: Embedder,
+        document_loader: Callable[[BaseDocument], Awaitable[Optional[TDocument]]],
+    ) -> VectorCollection[TDocument]: ...
+
+    @abstractmethod
+    async def get_or_create_collection(
+        self,
+        name: str,
+        schema: type[TDocument],
+        embedder: Embedder,
+        document_loader: Callable[[BaseDocument], Awaitable[Optional[TDocument]]],
+    ) -> VectorCollection[TDocument]: ...
+
+    @abstractmethod
+    async def delete_collection(
+        self,
+        name: str,
+    ) -> None: ...
+
+    @abstractmethod
+    async def upsert_metadata(
+        self,
+        key: str,
+        value: JSONSerializable,
+    ) -> None: ...
+
+    @abstractmethod
+    async def remove_metadata(
+        self,
+        key: str,
+    ) -> None: ...
+
+    @abstractmethod
+    async def read_metadata(
+        self,
+    ) -> Mapping[str, JSONSerializable]: ...
+
+
+class VectorCollection(ABC, Generic[TDocument]):
+    @abstractmethod
+    async def find(
+        self,
+        filters: Where,
+    ) -> Sequence[TDocument]: ...
+
+    @abstractmethod
+    async def find_one(
+        self,
+        filters: Where,
+    ) -> Optional[TDocument]: ...
+
+    @abstractmethod
+    async def insert_one(
+        self,
+        document: TDocument,
+    ) -> InsertResult: ...
+
+    @abstractmethod
+    async def update_one(
+        self,
+        filters: Where,
+        params: TDocument,
+        upsert: bool = False,
+    ) -> UpdateResult[TDocument]: ...
+
+    @abstractmethod
+    async def delete_one(
+        self,
+        filters: Where,
+    ) -> DeleteResult[TDocument]: ...
+
+    async def replace_documents(
+        self,
+        filters: Where,
+        documents: Sequence[TDocument],
+    ) -> None:
+        """Replace all matching documents, preserving documents outside the filter.
+
+        Replacement IDs must be unique and must not belong to documents outside
+        the filter. An empty replacement deletes all matches. Adapters may
+        optimize this operation; the default retains individual-operation
+        semantics and does not promise an atomic replacement.
+        """
+        for document in list(await self.find(filters)):
+            await self.delete_one({"id": {"$eq": document["id"]}})
+
+        await async_utils.safe_gather(*[self.insert_one(document) for document in documents])
+
+    @abstractmethod
+    async def find_similar_documents(
+        self,
+        filters: Where,
+        query: str,
+        k: int,
+        hints: Mapping[str, Any] = {},
+    ) -> Sequence[SimilarDocumentResult[TDocument]]: ...
+
+    @abstractmethod
+    async def ensure_indexes(
+        self,
+        indexes: Sequence[VectorCollectionIndex],
+    ) -> None:
+        """Ensures the requested filter indexes exist for the collection."""
+        ...
+
+
+class BaseVectorCollection(VectorCollection[TDocument]):
+    def __init__(self, tracer: Tracer) -> None:
+        self._tracer = tracer
+
+    @abstractmethod
+    async def do_find_similar_documents(
+        self,
+        filters: Where,
+        query: str,
+        k: int,
+        hints: Mapping[str, Any] = {},
+    ) -> Sequence[SimilarDocumentResult[TDocument]]: ...
+
+    @override
+    async def find_similar_documents(
+        self,
+        filters: Where,
+        query: str,
+        k: int,
+        hints: Mapping[str, Any] = {},
+    ) -> Sequence[SimilarDocumentResult[TDocument]]:
+        with self._tracer.span("persistence.find_similar_documents"):
+            return await self.do_find_similar_documents(filters, query, k, hints)

@@ -1,0 +1,833 @@
+{
+  "schema_version": 1,
+  "items": {
+    "CN001": {
+      "id": "CN001",
+      "company_id": "anphu",
+      "title": "Công nhân đóng gói",
+      "location": "Bắc Ninh",
+      "salary": "Lương cơ bản 6.000.000 đồng/tháng; phụ cấp chuyên cần 500.000 đồng/tháng",
+      "jd": "Đóng gói sản phẩm, kiểm đếm và vệ sinh khu vực làm việc. Không yêu cầu kinh nghiệm. Ca ngày 08:00–17:00; nghỉ Chủ nhật. Không thu phí ứng tuyển. Hỗ trợ bữa trưa.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Đóng gói sản phẩm, kiểm đếm và vệ sinh khu vực làm việc. Không yêu cầu kinh nghiệm. Ca ngày 08:00–17:00; nghỉ Chủ nhật. Không thu phí ứng tuyển. Hỗ trợ bữa trưa.",
+      "salary_min": 6000000,
+      "salary_max": null,
+      "shift": "day",
+      "tags": [
+        "Công nhân đóng gói",
+        "Bắc Ninh"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN002": {
+      "id": "CN002",
+      "company_id": "anphu",
+      "title": "Công nhân lắp ráp",
+      "location": "Hà Nội",
+      "salary": "Lương cơ bản 7.000.000 đồng/tháng; phụ cấp ca đêm theo chính sách nhà máy",
+      "jd": "Lắp ráp linh kiện theo hướng dẫn. Được đào tạo trước khi nhận việc. Xoay ca ngày 06:00–14:00 và ca tối 14:00–22:00 theo tuần. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Lắp ráp linh kiện theo hướng dẫn. Được đào tạo trước khi nhận việc. Xoay ca ngày 06:00–14:00 và ca tối 14:00–22:00 theo tuần. Không thu phí ứng tuyển.",
+      "salary_min": 7000000,
+      "salary_max": null,
+      "shift": "rotating",
+      "tags": [
+        "Công nhân lắp ráp",
+        "Hà Nội"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN003": {
+      "id": "CN003",
+      "company_id": "anphu",
+      "title": "Công nhân kho (đã ngừng tuyển)",
+      "location": "Bắc Ninh",
+      "salary": "6.000.000 đồng/tháng",
+      "jd": "Vị trí mẫu đã đóng.",
+      "active": false,
+      "version": 1,
+      "jd_summary": "Vị trí mẫu đã đóng.",
+      "salary_min": 6000000,
+      "salary_max": null,
+      "shift": "day",
+      "tags": [
+        "Công nhân kho (đã ngừng tuyển)",
+        "Bắc Ninh"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN004": {
+      "id": "CN004",
+      "company_id": "anphu",
+      "title": "Công nhân kiểm tra chất lượng (QC)",
+      "location": "Bắc Ninh",
+      "salary": "7.500.000–9.500.000 đồng/tháng (gross)",
+      "jd": "Kiểm tra ngoại quan sản phẩm, ghi nhận lỗi và báo cáo theo mẫu. Ưu tiên 1 năm kinh nghiệm QC và biết đọc hướng dẫn kiểm tra. Làm tại nhà máy, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Kiểm tra ngoại quan sản phẩm, ghi nhận lỗi và báo cáo theo mẫu. Ưu tiên 1 năm kinh nghiệm QC và biết đọc hướng dẫn kiểm tra. Làm tại nhà máy, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 7500000,
+      "salary_max": 9500000,
+      "shift": "day",
+      "tags": [
+        "Công nhân kiểm tra chất lượng (QC)",
+        "Bắc Ninh",
+        "QC",
+        "kiểm tra sản phẩm",
+        "kiểm hàng"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 1,
+        "desired_skills": [
+          "QC",
+          "kiểm tra sản phẩm"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN005": {
+      "id": "CN005",
+      "company_id": "anphu",
+      "title": "Công nhân vận hành máy",
+      "location": "Hà Nội",
+      "salary": "8.000.000–11.000.000 đồng/tháng (gross)",
+      "jd": "Vận hành máy theo quy trình, kiểm tra thông số và báo sự cố cho kỹ thuật. Yêu cầu 1 năm kinh nghiệm vận hành máy; được hướng dẫn theo từng dây chuyền. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần, nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Vận hành máy theo quy trình, kiểm tra thông số và báo sự cố cho kỹ thuật. Yêu cầu 1 năm kinh nghiệm vận hành máy; được hướng dẫn theo từng dây chuyền. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần, nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 8000000,
+      "salary_max": 11000000,
+      "shift": "rotating",
+      "tags": [
+        "Công nhân vận hành máy",
+        "Hà Nội",
+        "vận hành máy"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 1,
+        "desired_skills": [
+          "vận hành máy"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN006": {
+      "id": "CN006",
+      "company_id": "binhminh",
+      "title": "Nhân viên kho và soạn hàng",
+      "location": "Bình Dương",
+      "salary": "7.000.000–9.000.000 đồng/tháng (gross)",
+      "jd": "Nhận hàng, kiểm đếm, soạn đơn và sắp xếp kho theo hướng dẫn. Không yêu cầu kinh nghiệm, được đào tạo dùng máy quét mã. Làm tại kho, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Nhận hàng, kiểm đếm, soạn đơn và sắp xếp kho theo hướng dẫn. Không yêu cầu kinh nghiệm, được đào tạo dùng máy quét mã. Làm tại kho, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "salary_min": 7000000,
+      "salary_max": 9000000,
+      "shift": "day",
+      "tags": [
+        "Nhân viên kho và soạn hàng",
+        "Bình Dương",
+        "kho",
+        "logistics",
+        "soạn đơn"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN007": {
+      "id": "CN007",
+      "company_id": "binhminh",
+      "title": "Công nhân may công nghiệp",
+      "location": "Đồng Nai",
+      "salary": "7.500.000–10.500.000 đồng/tháng (gross)",
+      "jd": "May các công đoạn theo chuyền và tự kiểm tra đường may. Yêu cầu 1 năm kinh nghiệm may công nghiệp. Làm tại xưởng, ca ngày 07:30–16:30 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "May các công đoạn theo chuyền và tự kiểm tra đường may. Yêu cầu 1 năm kinh nghiệm may công nghiệp. Làm tại xưởng, ca ngày 07:30–16:30 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "salary_min": 7500000,
+      "salary_max": 10500000,
+      "shift": "day",
+      "tags": [
+        "Công nhân may công nghiệp",
+        "Đồng Nai",
+        "may công nghiệp",
+        "may mặc"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 1,
+        "desired_skills": [
+          "may công nghiệp"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN008": {
+      "id": "CN008",
+      "company_id": "binhminh",
+      "title": "Công nhân đóng gói thực phẩm",
+      "location": "Long An",
+      "salary": "6.500.000–8.500.000 đồng/tháng (gross)",
+      "jd": "Đóng gói, dán nhãn và kiểm tra bao bì thực phẩm theo quy trình vệ sinh. Không yêu cầu kinh nghiệm, được đào tạo trước khi nhận việc. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần; nghỉ luân phiên 1 ngày mỗi tuần. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Đóng gói, dán nhãn và kiểm tra bao bì thực phẩm theo quy trình vệ sinh. Không yêu cầu kinh nghiệm, được đào tạo trước khi nhận việc. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần; nghỉ luân phiên 1 ngày mỗi tuần. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "salary_min": 6500000,
+      "salary_max": 8500000,
+      "shift": "rotating",
+      "tags": [
+        "Công nhân đóng gói thực phẩm",
+        "Long An",
+        "thực phẩm",
+        "đóng gói"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN009": {
+      "id": "CN009",
+      "company_id": "anphu",
+      "title": "Kỹ thuật viên bảo trì cơ điện",
+      "location": "Bắc Ninh",
+      "salary": "9.000.000–13.000.000 đồng/tháng (gross)",
+      "jd": "Bảo trì định kỳ thiết bị, kiểm tra tủ điện và xử lý sự cố theo phân công. Yêu cầu 2 năm kinh nghiệm cơ điện và đọc bản vẽ điện. Làm tại nhà máy, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Bảo trì định kỳ thiết bị, kiểm tra tủ điện và xử lý sự cố theo phân công. Yêu cầu 2 năm kinh nghiệm cơ điện và đọc bản vẽ điện. Làm tại nhà máy, ca ngày 08:00–17:00 từ thứ Hai đến thứ Bảy; nghỉ Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 9000000,
+      "salary_max": 13000000,
+      "shift": "day",
+      "tags": [
+        "Kỹ thuật viên bảo trì cơ điện",
+        "Bắc Ninh",
+        "cơ điện",
+        "bảo trì",
+        "kỹ thuật"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "cơ điện",
+          "bảo trì"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "CN010": {
+      "id": "CN010",
+      "company_id": "binhminh",
+      "title": "Công nhân lắp ráp điện tử",
+      "location": "Bình Dương",
+      "salary": "7.000.000–9.500.000 đồng/tháng (gross)",
+      "jd": "Lắp ráp linh kiện điện tử, kiểm tra thao tác và ghi nhận sản lượng theo hướng dẫn. Không yêu cầu kinh nghiệm, được đào tạo tại dây chuyền. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Lắp ráp linh kiện điện tử, kiểm tra thao tác và ghi nhận sản lượng theo hướng dẫn. Không yêu cầu kinh nghiệm, được đào tạo tại dây chuyền. Làm tại nhà máy, xoay ca 06:00–14:00 và 14:00–22:00 theo tuần; nghỉ Chủ nhật. Hỗ trợ bữa ăn trong ca. Không thu phí ứng tuyển.",
+      "salary_min": 7000000,
+      "salary_max": 9500000,
+      "shift": "rotating",
+      "tags": [
+        "Công nhân lắp ráp điện tử",
+        "Bình Dương",
+        "điện tử",
+        "lắp ráp"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "IT001": {
+      "id": "IT001",
+      "company_id": "saomai",
+      "title": "Backend Engineer (Python/FastAPI)",
+      "location": "Đà Nẵng",
+      "salary": "18.000.000–30.000.000 đồng/tháng (gross)",
+      "jd": "Phát triển REST API bằng Python/FastAPI, thiết kế dữ liệu PostgreSQL và viết kiểm thử. Yêu cầu từ 2 năm kinh nghiệm backend, sử dụng Git và SQL. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 2,
+      "jd_summary": "Phát triển REST API bằng Python/FastAPI, thiết kế dữ liệu PostgreSQL và viết kiểm thử. Yêu cầu từ 2 năm kinh nghiệm backend, sử dụng Git và SQL. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 18000000,
+      "salary_max": 30000000,
+      "shift": "day",
+      "tags": [
+        "Backend Engineer (Python/FastAPI)",
+        "Đà Nẵng",
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "backend",
+        "lập trình viên"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "Python",
+          "FastAPI",
+          "PostgreSQL"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT002": {
+      "id": "IT002",
+      "company_id": "saomai",
+      "title": "Frontend Developer (React/TypeScript)",
+      "location": "Hà Nội",
+      "salary": "16.000.000–28.000.000 đồng/tháng (gross)",
+      "jd": "Phát triển giao diện web với React/TypeScript, tích hợp REST API và tối ưu giao diện trên thiết bị di động. Yêu cầu từ 2 năm kinh nghiệm frontend, HTML/CSS và Git. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 08:30–17:30 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Phát triển giao diện web với React/TypeScript, tích hợp REST API và tối ưu giao diện trên thiết bị di động. Yêu cầu từ 2 năm kinh nghiệm frontend, HTML/CSS và Git. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 08:30–17:30 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "salary_min": 16000000,
+      "salary_max": 28000000,
+      "shift": "day",
+      "tags": [
+        "Frontend Developer (React/TypeScript)",
+        "Hà Nội",
+        "React",
+        "TypeScript",
+        "CSS",
+        "frontend",
+        "hybrid",
+        "lập trình viên"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "React",
+          "TypeScript",
+          "CSS"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT003": {
+      "id": "IT003",
+      "company_id": "viettech",
+      "title": "Fullstack Developer (Node.js/React)",
+      "location": "TP. Hồ Chí Minh",
+      "salary": "22.000.000–35.000.000 đồng/tháng (gross)",
+      "jd": "Xây dựng ứng dụng web bằng Node.js và React, phát triển API và truy vấn PostgreSQL. Yêu cầu từ 3 năm kinh nghiệm phát triển web, có kinh nghiệm cả frontend và backend. Làm tại văn phòng 09:00–18:00 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Xây dựng ứng dụng web bằng Node.js và React, phát triển API và truy vấn PostgreSQL. Yêu cầu từ 3 năm kinh nghiệm phát triển web, có kinh nghiệm cả frontend và backend. Làm tại văn phòng 09:00–18:00 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 22000000,
+      "salary_max": 35000000,
+      "shift": "day",
+      "tags": [
+        "Fullstack Developer (Node.js/React)",
+        "TP. Hồ Chí Minh",
+        "Node.js",
+        "React",
+        "PostgreSQL",
+        "fullstack",
+        "full stack",
+        "lập trình viên"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 3,
+        "desired_skills": [
+          "Node.js",
+          "React",
+          "PostgreSQL"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT004": {
+      "id": "IT004",
+      "company_id": "saomai",
+      "title": "Manual QA Tester",
+      "location": "Đà Nẵng",
+      "salary": "10.000.000–18.000.000 đồng/tháng (gross)",
+      "jd": "Phân tích yêu cầu, viết test case, kiểm thử ứng dụng web và báo lỗi trên Jira. Yêu cầu từ 1 năm kinh nghiệm kiểm thử phần mềm, biết kiểm thử API với Postman. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Phân tích yêu cầu, viết test case, kiểm thử ứng dụng web và báo lỗi trên Jira. Yêu cầu từ 1 năm kinh nghiệm kiểm thử phần mềm, biết kiểm thử API với Postman. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 10000000,
+      "salary_max": 18000000,
+      "shift": "day",
+      "tags": [
+        "Manual QA Tester",
+        "Đà Nẵng",
+        "test case",
+        "Postman",
+        "Jira",
+        "QA",
+        "tester",
+        "kiểm thử"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 1,
+        "desired_skills": [
+          "test case",
+          "Postman",
+          "Jira"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT005": {
+      "id": "IT005",
+      "company_id": "viettech",
+      "title": "Automation QA Engineer",
+      "location": "Hà Nội",
+      "salary": "18.000.000–30.000.000 đồng/tháng (gross)",
+      "jd": "Xây dựng và duy trì kiểm thử tự động giao diện và API bằng Playwright/TypeScript, tích hợp pipeline CI/CD. Yêu cầu từ 2 năm kinh nghiệm QA, trong đó có viết kiểm thử tự động. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 09:00–18:00 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Xây dựng và duy trì kiểm thử tự động giao diện và API bằng Playwright/TypeScript, tích hợp pipeline CI/CD. Yêu cầu từ 2 năm kinh nghiệm QA, trong đó có viết kiểm thử tự động. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 09:00–18:00 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "salary_min": 18000000,
+      "salary_max": 30000000,
+      "shift": "day",
+      "tags": [
+        "Automation QA Engineer",
+        "Hà Nội",
+        "Playwright",
+        "TypeScript",
+        "CI/CD",
+        "QA",
+        "automation",
+        "kiểm thử",
+        "hybrid"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "Playwright",
+          "TypeScript",
+          "CI/CD"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT006": {
+      "id": "IT006",
+      "company_id": "viettech",
+      "title": "DevOps Engineer",
+      "location": "TP. Hồ Chí Minh",
+      "salary": "25.000.000–40.000.000 đồng/tháng (gross)",
+      "jd": "Quản trị hạ tầng Linux, đóng gói ứng dụng Docker, triển khai trên Kubernetes và duy trì CI/CD. Yêu cầu từ 3 năm kinh nghiệm DevOps và sử dụng AWS. Làm tại văn phòng 09:00–18:00 từ thứ Hai đến thứ Sáu; lịch trực sự cố, nếu phát sinh, sẽ trao đổi riêng với HR. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Quản trị hạ tầng Linux, đóng gói ứng dụng Docker, triển khai trên Kubernetes và duy trì CI/CD. Yêu cầu từ 3 năm kinh nghiệm DevOps và sử dụng AWS. Làm tại văn phòng 09:00–18:00 từ thứ Hai đến thứ Sáu; lịch trực sự cố, nếu phát sinh, sẽ trao đổi riêng với HR. Không thu phí ứng tuyển.",
+      "salary_min": 25000000,
+      "salary_max": 40000000,
+      "shift": "day",
+      "tags": [
+        "DevOps Engineer",
+        "TP. Hồ Chí Minh",
+        "Linux",
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "devops",
+        "hạ tầng"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 3,
+        "desired_skills": [
+          "Linux",
+          "Docker",
+          "Kubernetes",
+          "AWS"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT007": {
+      "id": "IT007",
+      "company_id": "saomai",
+      "title": "Data Engineer",
+      "location": "Hà Nội",
+      "salary": "22.000.000–35.000.000 đồng/tháng (gross)",
+      "jd": "Xây dựng pipeline ETL bằng Python/SQL, điều phối bằng Airflow và kiểm tra chất lượng dữ liệu. Yêu cầu từ 2 năm kinh nghiệm xử lý dữ liệu và tối ưu truy vấn PostgreSQL. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Xây dựng pipeline ETL bằng Python/SQL, điều phối bằng Airflow và kiểm tra chất lượng dữ liệu. Yêu cầu từ 2 năm kinh nghiệm xử lý dữ liệu và tối ưu truy vấn PostgreSQL. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 22000000,
+      "salary_max": 35000000,
+      "shift": "day",
+      "tags": [
+        "Data Engineer",
+        "Hà Nội",
+        "Python",
+        "SQL",
+        "Airflow",
+        "data",
+        "dữ liệu",
+        "ETL"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "Python",
+          "SQL",
+          "Airflow"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT008": {
+      "id": "IT008",
+      "company_id": "saomai",
+      "title": "AI Engineer (LLM/RAG)",
+      "location": "Đà Nẵng",
+      "salary": "25.000.000–40.000.000 đồng/tháng (gross)",
+      "jd": "Phát triển ứng dụng LLM/RAG, tích hợp API mô hình, xây dựng tìm kiếm tài liệu và đánh giá chất lượng câu trả lời. Yêu cầu từ 2 năm kinh nghiệm Python và đã triển khai ứng dụng LLM. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 08:30–17:30 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Phát triển ứng dụng LLM/RAG, tích hợp API mô hình, xây dựng tìm kiếm tài liệu và đánh giá chất lượng câu trả lời. Yêu cầu từ 2 năm kinh nghiệm Python và đã triển khai ứng dụng LLM. Làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần; giờ 08:30–17:30 từ thứ Hai đến thứ Sáu. Không thu phí ứng tuyển.",
+      "salary_min": 25000000,
+      "salary_max": 40000000,
+      "shift": "day",
+      "tags": [
+        "AI Engineer (LLM/RAG)",
+        "Đà Nẵng",
+        "Python",
+        "LLM",
+        "RAG",
+        "AI",
+        "trí tuệ nhân tạo",
+        "hybrid"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 2,
+        "desired_skills": [
+          "Python",
+          "LLM",
+          "RAG"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT009": {
+      "id": "IT009",
+      "company_id": "viettech",
+      "title": "IT Support",
+      "location": "Hà Nội",
+      "salary": "9.000.000–14.000.000 đồng/tháng (gross)",
+      "jd": "Hỗ trợ người dùng, cài đặt máy tính Windows, xử lý sự cố mạng LAN và quản lý thiết bị văn phòng. Yêu cầu từ 1 năm kinh nghiệm hỗ trợ IT và giao tiếp rõ ràng với người dùng. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Hỗ trợ người dùng, cài đặt máy tính Windows, xử lý sự cố mạng LAN và quản lý thiết bị văn phòng. Yêu cầu từ 1 năm kinh nghiệm hỗ trợ IT và giao tiếp rõ ràng với người dùng. Làm tại văn phòng 08:30–17:30 từ thứ Hai đến thứ Sáu; nghỉ thứ Bảy và Chủ nhật. Không thu phí ứng tuyển.",
+      "salary_min": 9000000,
+      "salary_max": 14000000,
+      "shift": "day",
+      "tags": [
+        "IT Support",
+        "Hà Nội",
+        "Windows",
+        "LAN",
+        "hỗ trợ người dùng",
+        "helpdesk",
+        "support",
+        "hỗ trợ IT"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 1,
+        "desired_skills": [
+          "Windows",
+          "LAN",
+          "hỗ trợ người dùng"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "IT010": {
+      "id": "IT010",
+      "company_id": "saomai",
+      "title": "Thực tập sinh Backend Python",
+      "location": "Đà Nẵng",
+      "salary": "Trợ cấp thực tập 4.000.000–6.000.000 đồng/tháng (gross)",
+      "jd": "Hỗ trợ phát triển API đơn giản, viết kiểm thử và sửa lỗi dưới hướng dẫn của kỹ sư. Không yêu cầu kinh nghiệm đi làm; cần kiến thức nền tảng Python, SQL và Git. Thực tập 3 tháng tại văn phòng, tối thiểu 4 ngày/tuần trong khung 08:30–17:30 từ thứ Hai đến thứ Sáu. Mức ghi trong salary là trợ cấp thực tập gross/tháng, chưa phải lương nhân viên chính thức. Không thu phí ứng tuyển.",
+      "active": true,
+      "version": 1,
+      "jd_summary": "Hỗ trợ phát triển API đơn giản, viết kiểm thử và sửa lỗi dưới hướng dẫn của kỹ sư. Không yêu cầu kinh nghiệm đi làm; cần kiến thức nền tảng Python, SQL và Git. Thực tập 3 tháng tại văn phòng, tối thiểu 4 ngày/tuần trong khung 08:30–17:30 từ thứ Hai đến thứ Sáu. Mức ghi trong salary là trợ cấp thực tập gross/tháng, chưa phải lương nhân viên chính thức. Không thu phí ứng tuyển.",
+      "salary_min": 4000000,
+      "salary_max": 6000000,
+      "shift": "day",
+      "tags": [
+        "Thực tập sinh Backend Python",
+        "Đà Nẵng",
+        "Python",
+        "SQL",
+        "Git",
+        "intern",
+        "internship",
+        "thực tập",
+        "backend"
+      ],
+      "evaluation_policy": {
+        "version": 1,
+        "criteria": [
+          "experience_years",
+          "skills",
+          "preferred_shift",
+          "preferred_location",
+          "available_date"
+        ],
+        "minimum_experience_years": 0,
+        "desired_skills": [
+          "Python",
+          "SQL",
+          "Git"
+        ],
+        "proceed_score": 20,
+        "reject_below_score": 10
+      },
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    }
+  }
+}

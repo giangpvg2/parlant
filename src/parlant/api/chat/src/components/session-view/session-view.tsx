@@ -1,0 +1,797 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {MINIMAL_UI} from '@/config';
+import {Textarea} from '../ui/textarea';
+import {Button} from '../ui/button';
+import {BASE_URL, deleteData, postData} from '@/utils/api';
+import {groupBy} from '@/utils/obj';
+import Message from '../message/message';
+import Markdown from '../markdown/markdown';
+import {EventInterface, ServerStatus, SessionInterface} from '@/utils/interfaces';
+import Spacer from '../ui/custom/spacer';
+import {toast} from 'sonner';
+import {NEW_SESSION_ID} from '../chat-header/chat-header';
+import {useQuestionDialog} from '@/hooks/useQuestionDialog';
+import {twJoin, twMerge} from 'tailwind-merge';
+import MessageDetails from '../message-details/message-details';
+import {useAtom} from 'jotai';
+import {agentAtom, agentsAtom, emptyPendingMessage, isInitializingSessionAtom, newSessionAtom, pendingMessageAtom, sessionAtom, sessionsAtom, viewingMessageDetailsAtom} from '@/store';
+import ErrorBoundary from '../error-boundary/error-boundary';
+import DateHeader from './date-header/date-header';
+// import SessoinViewHeader from './session-view-header/session-view-header';
+import {getIndexedItemsFromIndexedDB, isSameDay} from '@/lib/utils';
+import {LoaderCircle, Square} from 'lucide-react';
+import {soundDoubleBlip} from '@/utils/sounds';
+import {rootTraceId, withLatestTraceStatus} from '@/utils/event-status';
+
+const SessionView = (): ReactElement => {
+	const lastMessageRef = useRef<HTMLDivElement>(null);
+	const submitButtonRef = useRef<HTMLButtonElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const messagesRef = useRef<HTMLDivElement>(null);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const shouldStickToBottomRef = useRef(true);
+
+	const [message, setMessage] = useState('');
+	const [lastOffset, setLastOffset] = useState(0);
+	const [messages, setMessages] = useState<EventInterface[]>([]);
+	const [streamingStatusEvents, setStreamingStatusEvents] = useState<EventInterface[]>([]);
+	const [showTyping, setShowTyping] = useState(false);
+	const [showThinking, setShowThinking] = useState(false);
+	const [thinkingDisplay, setThinkingDisplay] = useState('');
+	const [isFirstScroll, setIsFirstScroll] = useState(true);
+	const {openQuestionDialog, closeQuestionDialog} = useQuestionDialog();
+	const [showLogsForMessage, setShowLogsForMessage] = useState<EventInterface | null>(null);
+	const [isMissingAgent, setIsMissingAgent] = useState<boolean | null>(null);
+	const [isStoppingProcessing, setIsStoppingProcessing] = useState(false);
+	// True while a brand-new session's create request is in flight (sessions are
+	// created lazily on the first message); drives the "Initializing session..."
+	// indicator under the pending customer message.
+	const [isInitializingSession, setIsInitializingSession] = useAtom(isInitializingSessionAtom);
+	const [flaggedItems, setFlaggedItems] = useState<Record<string, string>>({});
+	const [refreshFlag, setRefreshFlag] = useState(false);
+	const [pendingMessage, setPendingMessage] = useAtom<EventInterface>(pendingMessageAtom);
+	const [agents] = useAtom(agentsAtom);
+	const [session, setSession] = useAtom(sessionAtom);
+	const [agent] = useAtom(agentAtom);
+	const [newSession, setNewSession] = useAtom(newSessionAtom);
+	const [, setViewingMessage] = useAtom(viewingMessageDetailsAtom);
+	const [, setSessions] = useAtom(sessionsAtom);
+
+	// SSE connection for list_events
+	const [lastEvents, setLastEvents] = useState<EventInterface[]>([]);
+	const listEventsConnectionRef = useRef<EventSource | null>(null);
+	const [sseReconnectTrigger, setSseReconnectTrigger] = useState(0);
+
+	const isScrolledToBottom = useCallback((el: HTMLElement) => el.scrollHeight - el.scrollTop - el.clientHeight <= 4, []);
+
+	const shouldAutoScroll = useCallback(() => isFirstScroll || shouldStickToBottomRef.current, [isFirstScroll]);
+
+	const handleMessagesScroll = useCallback(() => {
+		const el = scrollContainerRef.current;
+		if (!el) return;
+		shouldStickToBottomRef.current = isScrolledToBottom(el);
+	}, [isScrolledToBottom]);
+
+	const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+		const el = scrollContainerRef.current;
+		if (!el) return;
+
+		el.scrollTo({top: el.scrollHeight, behavior});
+		shouldStickToBottomRef.current = true;
+	}, []);
+
+	// Refetch function for manual reconnection
+	const refetch = useCallback(() => {
+		setSseReconnectTrigger((prev) => prev + 1);
+	}, []);
+
+	// Abort function for SSE connection
+	const abortFetch = useCallback(() => {
+		if (listEventsConnectionRef.current) {
+			listEventsConnectionRef.current.close();
+			listEventsConnectionRef.current = null;
+		}
+	}, []);
+
+	// Ref to track the current offset for SSE reconnection
+	const sseOffsetRef = useRef(0);
+	// Ref to track the previous session ID
+	const prevSessionIdRef = useRef<string | null>(null);
+
+	// SSE connection effect for list_events
+	useEffect(() => {
+		if (!session?.id || session?.id === NEW_SESSION_ID) return;
+
+		// Close existing connection
+		if (listEventsConnectionRef.current) {
+			listEventsConnectionRef.current.close();
+		}
+
+		// Detect session change (not just reconnection)
+		const isSessionChange = prevSessionIdRef.current !== session.id;
+		if (isSessionChange) {
+			setLastEvents([]);
+			sseOffsetRef.current = 0;
+			prevSessionIdRef.current = session.id;
+		}
+
+		// Open SSE connection for list_events
+		const url = `${BASE_URL}/sessions/${session.id}/events?sse=true&min_offset=${sseOffsetRef.current}&wait_for_data=60`;
+		const eventSource = new EventSource(url);
+		listEventsConnectionRef.current = eventSource;
+
+		eventSource.onmessage = (event) => {
+			try {
+				const newEvent = JSON.parse(event.data);
+				// Update the offset ref for reconnection
+				if (newEvent.offset !== undefined) {
+					sseOffsetRef.current = Math.max(sseOffsetRef.current, newEvent.offset + 1);
+				}
+				setLastEvents((prev) => [...prev, newEvent]);
+			} catch (error) {
+				console.error('Error parsing SSE event:', error);
+			}
+		};
+
+		eventSource.onerror = () => {
+			eventSource.close();
+			listEventsConnectionRef.current = null;
+			// Reconnect after a short delay
+			setTimeout(() => {
+				setSseReconnectTrigger((prev) => prev + 1);
+			}, 1000);
+		};
+
+		return () => {
+			eventSource.close();
+			listEventsConnectionRef.current = null;
+		};
+	}, [session?.id, sseReconnectTrigger]);
+
+	const resetChat = () => {
+		setMessage('');
+		setLastOffset(0);
+		setMessages([]);
+		setShowTyping(false);
+		setShowLogsForMessage(null);
+	};
+
+	const resendMessageDialog = (index: number) => (sessionId: string, text?: string) => {
+		const isLastMessage = index === messages.length - 1;
+		const lastUserMessageOffset = messages[index].offset;
+
+		if (isLastMessage) {
+			setShowLogsForMessage(null);
+			return resendMessage(index, sessionId, lastUserMessageOffset, text);
+		}
+
+		const onApproved = () => {
+			setShowLogsForMessage(null);
+			closeQuestionDialog();
+			resendMessage(index, sessionId, lastUserMessageOffset, text);
+		};
+
+		const question = 'Resending this message would cause all of the following messages in the session to disappear.';
+		openQuestionDialog('Are you sure?', question, [{text: 'Resend Anyway', onClick: onApproved, isMainAction: true}]);
+	};
+
+	const regenerateMessageDialog = (index: number) => (sessionId: string) => {
+		const isLastMessage = index === messages.length - 1;
+		const prevMessages = messages.slice(0, index + 1);
+		const lastUserMessageIndex = prevMessages.findLastIndex((message) => message.source === 'customer' && message.kind === 'message');
+		const lastUserMessage = prevMessages[lastUserMessageIndex];
+		const lastUserMessageOffset = lastUserMessage?.offset ?? messages.length - 1;
+
+		if (isLastMessage) {
+			setShowLogsForMessage(null);
+			return regenerateMessage(lastUserMessageIndex, sessionId, lastUserMessageOffset);
+		}
+
+		const onApproved = () => {
+			setShowLogsForMessage(null);
+			closeQuestionDialog();
+			regenerateMessage(lastUserMessageIndex, sessionId, lastUserMessageOffset);
+		};
+
+		const question = 'Regenerating this message would cause all of the following messages in the session to disappear.';
+		openQuestionDialog('Are you sure?', question, [{text: 'Regenerate Anyway', onClick: onApproved, isMainAction: true}]);
+	};
+
+	const resendMessage = async (index: number, sessionId: string, offset: number, text?: string) => {
+		const event = messages[index];
+
+		const deleteSession = await deleteData(`sessions/${sessionId}/events?min_offset=${offset}`).catch((e) => ({error: e}));
+		if (deleteSession?.error) {
+			toast.error(deleteSession.error.message || deleteSession.error);
+			return;
+		}
+		abortFetch?.();
+		setLastOffset(offset);
+		setMessages((messages) => messages.slice(0, index));
+		postMessage(text ?? event.data?.message);
+	};
+
+	const regenerateMessage = async (index: number, sessionId: string, offset: number) => {
+		resendMessage(index, sessionId, offset);
+	};
+
+	const formatMessagesFromEvents = () => {
+		if (session?.id === NEW_SESSION_ID) return;
+		const lastEvent = lastEvents?.at(-1);
+		const lastStatusEvent = lastEvents?.findLast((e) => e.kind === 'status');
+		if (!lastEvent) return;
+
+		const offset = lastEvent?.offset;
+		if (offset || offset === 0) setLastOffset(offset + 1);
+
+		const traceMap = groupBy(lastEvents || [], (item: EventInterface) => rootTraceId(item.trace_id));
+
+		const newMessages = lastEvents?.filter((e) => e.kind === 'message') || [];
+		const withStatusMessages = newMessages.map((newMessage, i) => {
+			return withLatestTraceStatus(
+				newMessage,
+				traceMap?.[rootTraceId(newMessage.trace_id)] || [],
+				(newMessages[i + 1] ? 'ready' : undefined) as ServerStatus | undefined
+			);
+		});
+
+		setMessages((messages) => {
+			const existingMessagesWithStatus = messages.map((existingMessage) => {
+				const traceEvents = traceMap?.[rootTraceId(existingMessage.trace_id)];
+				if (existingMessage.source === 'customer' && traceEvents) {
+					return withLatestTraceStatus(existingMessage, traceEvents);
+				}
+				return existingMessage;
+			});
+			if (!withStatusMessages?.length) return existingMessagesWithStatus;
+			if (pendingMessage?.data?.message) setPendingMessage(emptyPendingMessage());
+
+			const newVals: EventInterface[] = [];
+			for (const messageArray of [existingMessagesWithStatus, withStatusMessages]) {
+				for (const message of messageArray) {
+					newVals[message.offset] = message;
+				}
+			}
+			return newVals.filter((message) => message);
+		});
+
+		const lastStatusEventStatus = lastStatusEvent?.data?.status;
+
+		// Check if any new message is streaming (has chunks) - if so, don't show typing indicator
+		const hasNewStreamingMessage = newMessages.some((msg) => msg?.data?.chunks !== undefined);
+
+		if (newMessages?.length && (showThinking || showTyping)) soundDoubleBlip(true);
+		if (lastStatusEventStatus) {
+			setShowThinking(lastStatusEventStatus === 'processing');
+
+			if (lastStatusEventStatus === 'processing') {
+				// Prefer the chunked-status `message` (joined chunks); fall back to the
+				// legacy `data.stage` field or the generic "Thinking" placeholder.
+				setThinkingDisplay(lastStatusEvent?.data?.message ?? lastStatusEvent?.data?.data?.stage ?? 'Thinking');
+			}
+
+			// Don't show typing if we already have a streaming message arriving
+			setShowTyping(lastStatusEventStatus === 'typing' && !hasNewStreamingMessage);
+		} else if (hasNewStreamingMessage) {
+			// Clear typing indicator when streaming message chunks arrive (even without status event)
+			setShowTyping(false);
+		}
+		// Track any status events that arrived with a `chunks` property so the
+		// streaming-status SSE effect can open per-event connections for them.
+		const newStreamingStatuses = (lastEvents || []).filter(isStatusStreaming);
+		if (newStreamingStatuses.length) {
+			setStreamingStatusEvents((prev) => {
+				const byId = new Map(prev.map((e) => [e.id, e]));
+				for (const s of newStreamingStatuses) if (s.id) byId.set(s.id, s);
+				return Array.from(byId.values());
+			});
+		}
+
+		// Clear processed events to avoid reprocessing them
+		setLastEvents([]);
+	};
+
+	const scrollToLastMessage = () => {
+		if (!shouldAutoScroll()) return;
+		scrollToBottom(isFirstScroll ? 'instant' : 'smooth');
+		if (lastMessageRef?.current && isFirstScroll) setIsFirstScroll(false);
+	};
+
+	const resetSession = () => {
+		setIsFirstScroll(true);
+		if (newSession && session?.id !== NEW_SESSION_ID) setNewSession(null);
+		resetChat();
+		textareaRef?.current?.focus();
+	};
+
+	const getSessionFlaggedItems = async () => {
+		const flaggedItems = await getIndexedItemsFromIndexedDB('Parlant-flags', 'message_flags', 'sessionIndex', session?.id as string, {name: 'sessionIndex', keyPath: 'sessionId'});
+		const asMap = (flaggedItems as {traceId: string; flagValue: string; sessionId: string}[]).reduce((acc, item) => {
+			acc[item.traceId] = item.flagValue;
+			return acc;
+		}, {} as Record<string, string>);
+		setFlaggedItems(asMap);
+	};
+
+	useEffect(() => {
+		getSessionFlaggedItems();
+	}, [session?.id, refreshFlag]);
+
+	useEffect(() => {
+		// Reconnect SSE when offset decreases (e.g., after deleting/regenerating messages)
+		if (lastOffset < sseOffsetRef.current) {
+			sseOffsetRef.current = lastOffset;
+			setLastEvents([]);
+			refetch();
+		}
+	}, [lastOffset]);
+	useEffect(() => setViewingMessage(showLogsForMessage), [showLogsForMessage]);
+	useEffect(formatMessagesFromEvents, [lastEvents]);
+	// Depend on `messages`, not `messages?.length`: a streaming reply grows the last
+	// message's chunks while the count stays constant, so keying on length alone stops
+	// the view from following the stream. `scrollToLastMessage` guards with
+	// `shouldAutoScroll()`, so this won't yank a user who has scrolled up.
+	useEffect(scrollToLastMessage, [messages, pendingMessage, isFirstScroll]);
+	useEffect(resetSession, [session?.id]);
+	useEffect(() => {
+		if ((showThinking || showTyping) && shouldAutoScroll()) scrollToBottom('smooth');
+	}, [showThinking, showTyping]);
+	useEffect(() => {
+		if (agents && agent?.id) setIsMissingAgent(!agents?.find((a) => a.id === agent?.id));
+	}, [agents, agent?.id]);
+
+	// Helper to check if a message is still streaming (has chunks but not completed with null terminator)
+	const isMessageStreaming = (event: EventInterface): boolean => {
+		const chunks = event?.data?.chunks;
+		if (chunks === undefined) return false; // No chunks = block mode, not streaming
+		if (chunks.length === 0) return true; // Empty chunks = streaming started but no data yet
+		return chunks[chunks.length - 1] !== null; // Not null-terminated = still streaming
+	};
+
+	// Helper to check if a status event is still streaming (has chunks but not completed with null terminator)
+	const isStatusStreaming = (event: EventInterface): boolean => {
+		if (event.kind !== 'status') return false;
+		const chunks = event?.data?.chunks;
+		if (chunks === undefined) return false;
+		if (chunks.length === 0) return true;
+		return chunks[chunks.length - 1] !== null;
+	};
+
+	// Buffered reveal for the thinking-status text. Unlike message-bubble, we
+	// intentionally do NOT "finish up" the reveal when streaming ends — when
+	// the chunked status closes or a new event takes over, whatever was already
+	// shown stays put. No fade overlay either: we want a steady character-level
+	// reveal so the text doesn't appear to "pop in" in batches on the right.
+	const [thinkingRevealed, setThinkingRevealed] = useState(0);
+	const thinkingRevealedRef = useRef(0);
+
+	// Keep the latest thinkingDisplay accessible to the long-lived reveal timer
+	// without recreating the interval on every text update (which would
+	// otherwise reset the 30ms tick clock on every chunk and produce jitter).
+	const thinkingTargetRef = useRef('');
+	thinkingTargetRef.current = thinkingDisplay;
+
+	// Reset revealed→0 whenever a *new* chunked status event ID enters the
+	// streaming set. Using event IDs (rather than the isThinkingStreamingActive
+	// bool) is robust to multi-step turns: even when an old reasoning event
+	// hasn't been null-terminated yet by the time the next one starts, the new
+	// ID still triggers a reset. Without this, subsequent reasoning rounds
+	// would inherit the previous round's revealed offset.
+	const seenStreamingIdsRef = useRef<Set<string>>(new Set());
+	useEffect(() => {
+		const currentIds = new Set<string>();
+		let hasNewId = false;
+		for (const e of streamingStatusEvents) {
+			if (!isStatusStreaming(e) || !e.id) continue;
+			currentIds.add(e.id);
+			if (!seenStreamingIdsRef.current.has(e.id)) hasNewId = true;
+		}
+		seenStreamingIdsRef.current = currentIds;
+		if (hasNewId) {
+			thinkingRevealedRef.current = 0;
+			setThinkingRevealed(0);
+		}
+	}, [streamingStatusEvents]);
+
+	// Snap revealed to full ONLY when the current thinkingDisplay does not match
+	// any chunked status event's message — i.e. it came from a non-chunked
+	// source (e.g. "Evaluating tools"). While the text still matches a chunked
+	// event (including after null-termination, where data.message holds the
+	// final reasoning string), we leave revealed alone so the reveal timer can
+	// catch up smoothly rather than the full text popping in instantly.
+	useEffect(() => {
+		const matchesChunkedEvent = streamingStatusEvents.some((e) => e?.data?.message === thinkingDisplay);
+		if (matchesChunkedEvent) return;
+		thinkingRevealedRef.current = thinkingDisplay.length;
+		setThinkingRevealed(thinkingDisplay.length);
+	}, [thinkingDisplay, streamingStatusEvents]);
+
+	// One long-lived reveal timer, gated on whether the thinking indicator is
+	// visible at all. We intentionally keep ticking after a chunked stream's
+	// null-terminator: if revealed hasn't caught up to the final text yet, we
+	// let the animation finish naturally rather than popping the full text in.
+	// When a new event replaces the text, the snap effect above takes over.
+	useEffect(() => {
+		if (!showThinking) return;
+
+		const revealInterval = 30;
+		const charsPerReveal = 4;
+
+		const timer = setInterval(() => {
+			const target = thinkingTargetRef.current;
+			const cur = thinkingRevealedRef.current;
+			if (cur >= target.length) return; // caught up — idle
+			const next = Math.min(cur + charsPerReveal, target.length);
+			thinkingRevealedRef.current = next;
+			setThinkingRevealed(next);
+		}, revealInterval);
+
+		return () => clearInterval(timer);
+	}, [showThinking]);
+
+	// Follow the reasoning as it types out: pin the scroll container to its bottom
+	// on every reveal tick (and on each new chunk), so the growing multi-line
+	// reasoning stays visible. Setting scrollTop directly is more reliable than
+	// scrollIntoView here, which doesn't consistently follow an element that grows
+	// in place (and lastMessageRef is shared across every message + the indicator).
+	useEffect(() => {
+		if (!showThinking || !shouldAutoScroll()) return;
+		scrollToBottom('instant');
+	}, [showThinking, thinkingRevealed, thinkingDisplay]);
+
+	// Track active SSE connections for streaming messages
+	const streamingConnectionsRef = useRef<Map<string, EventSource>>(new Map());
+
+	// Use SSE to subscribe to streaming message updates
+	useEffect(() => {
+		if (!session?.id || session?.id === NEW_SESSION_ID) return;
+
+		const streamingMessages = messages.filter(isMessageStreaming);
+		const activeConnections = streamingConnectionsRef.current;
+
+		// Close connections for messages that are no longer streaming
+		for (const [eventId, eventSource] of activeConnections) {
+			const stillStreaming = streamingMessages.some((m) => m.id === eventId);
+			if (!stillStreaming) {
+				eventSource.close();
+				activeConnections.delete(eventId);
+			}
+		}
+
+		// Open SSE connections for new streaming messages
+		for (const streamingMsg of streamingMessages) {
+			if (!streamingMsg.id || activeConnections.has(streamingMsg.id)) continue;
+
+			const eventSource = new EventSource(`${BASE_URL}/sessions/${session.id}/events/${streamingMsg.id}?sse=true`);
+
+			eventSource.onmessage = (event) => {
+				try {
+					const updatedEvent = JSON.parse(event.data);
+					setMessages((prevMessages) => {
+						return prevMessages.map((msg) => {
+							if (msg.id === streamingMsg.id) {
+								return {...msg, data: {...msg.data, ...updatedEvent.data}};
+							}
+							return msg;
+						});
+					});
+
+					// Check if streaming is complete and close connection
+					const chunks = updatedEvent?.data?.chunks;
+					if (chunks && chunks.length > 0 && chunks[chunks.length - 1] === null) {
+						eventSource.close();
+						activeConnections.delete(streamingMsg.id!);
+					}
+				} catch (error) {
+					console.error('Error parsing SSE event:', error);
+				}
+			};
+
+			eventSource.onerror = (error) => {
+				console.error('SSE connection error:', error);
+				eventSource.close();
+				activeConnections.delete(streamingMsg.id!);
+			};
+
+			activeConnections.set(streamingMsg.id, eventSource);
+		}
+
+		// Cleanup on unmount or session change
+		return () => {
+			for (const eventSource of activeConnections.values()) {
+				eventSource.close();
+			}
+			activeConnections.clear();
+		};
+	}, [messages, session?.id]);
+
+	// Track active SSE connections for streaming status events (mirrors the messages variant)
+	const streamingStatusConnectionsRef = useRef<Map<string, EventSource>>(new Map());
+
+	// Use SSE to subscribe to streaming status-event updates (any status event whose data carries `chunks`)
+	useEffect(() => {
+		if (!session?.id || session?.id === NEW_SESSION_ID) return;
+
+		const activeConnections = streamingStatusConnectionsRef.current;
+
+		// Close connections for status events that are no longer streaming
+		for (const [eventId, eventSource] of activeConnections) {
+			const stillStreaming = streamingStatusEvents.some((e) => e.id === eventId && isStatusStreaming(e));
+			if (!stillStreaming) {
+				eventSource.close();
+				activeConnections.delete(eventId);
+			}
+		}
+
+		// Open SSE connections for new streaming status events
+		for (const streamingStatus of streamingStatusEvents) {
+			if (!streamingStatus.id || activeConnections.has(streamingStatus.id)) continue;
+			if (!isStatusStreaming(streamingStatus)) continue;
+
+			const eventSource = new EventSource(`${BASE_URL}/sessions/${session.id}/events/${streamingStatus.id}?sse=true`);
+
+			eventSource.onmessage = (event) => {
+				try {
+					const updatedEvent = JSON.parse(event.data);
+
+					// Mirror the latest data onto the tracked status event
+					setStreamingStatusEvents((prev) => prev.map((e) => (e.id === streamingStatus.id ? {...e, data: {...e.data, ...updatedEvent.data}} : e)));
+
+					// Surface the joined message into the thinking indicator if present
+					const joinedMessage = updatedEvent?.data?.message;
+					if (typeof joinedMessage === 'string' && joinedMessage) {
+						setThinkingDisplay(joinedMessage);
+					}
+
+					// Check if streaming is complete and close connection
+					const chunks = updatedEvent?.data?.chunks;
+					if (chunks && chunks.length > 0 && chunks[chunks.length - 1] === null) {
+						eventSource.close();
+						activeConnections.delete(streamingStatus.id!);
+					}
+				} catch (error) {
+					console.error('Error parsing SSE event:', error);
+				}
+			};
+
+			eventSource.onerror = (error) => {
+				console.error('SSE connection error:', error);
+				eventSource.close();
+				activeConnections.delete(streamingStatus.id!);
+			};
+
+			activeConnections.set(streamingStatus.id, eventSource);
+		}
+
+		// Cleanup on unmount or session change
+		return () => {
+			for (const eventSource of activeConnections.values()) {
+				eventSource.close();
+			}
+			activeConnections.clear();
+		};
+	}, [streamingStatusEvents, session?.id]);
+
+	const createSession = async (): Promise<SessionInterface | undefined> => {
+		if (!newSession) return;
+		const {customer_id, title} = newSession;
+		return postData('sessions?allow_greeting=false', {customer_id, agent_id: agent?.id, title} as object)
+			.then((res: SessionInterface) => {
+				if (newSession) {
+					setSession(res);
+					setNewSession(null);
+				}
+				// The list's delta poll may have surfaced the session already —
+				// appending unconditionally would duplicate the row.
+				setSessions((sessions) => (sessions.some((s) => s.id === res.id) ? sessions : [...sessions, res]));
+				return res;
+			})
+			.catch(() => {
+				toast.error('Something went wrong');
+				return undefined;
+			});
+	};
+
+	const postMessage = async (content: string): Promise<void> => {
+		setPendingMessage((pendingMessage) => ({...pendingMessage, sessionId: session?.id, data: {message: content}}));
+		setMessage('');
+		let eventSession: string | undefined;
+		if (newSession) {
+			// Lazily create the session for the first message, surfacing an
+			// "Initializing session..." indicator while the create is in flight.
+			setIsInitializingSession(true);
+			try {
+				eventSession = (await createSession())?.id;
+			} finally {
+				setIsInitializingSession(false);
+			}
+		} else {
+			eventSession = session?.id;
+		}
+		postData(`sessions/${eventSession}/events`, {kind: 'message', message: content, source: 'customer'})
+			.then(() => {
+				soundDoubleBlip();
+				refetch();
+			})
+			.catch(() => toast.error('Something went wrong'));
+	};
+
+	const stopProcessing = async (): Promise<void> => {
+		if (!session?.id || session.id === NEW_SESSION_ID || isStoppingProcessing) return;
+
+		setIsStoppingProcessing(true);
+		try {
+			const cancellationEvent = await postData(`sessions/${session.id}/events`, {kind: 'status', source: 'customer', status: 'cancelled'});
+			if (cancellationEvent) setLastEvents((prev) => [...prev, cancellationEvent]);
+			refetch();
+		} catch {
+			toast.error('Could not stop processing');
+		} finally {
+			setIsStoppingProcessing(false);
+		}
+	};
+
+	const handleTextareaKeydown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			submitButtonRef?.current?.click();
+		} else if (e.key === 'Enter' && e.shiftKey) e.preventDefault();
+	};
+
+	const isCurrSession = (session?.id === NEW_SESSION_ID && !pendingMessage?.id) || (session?.id !== NEW_SESSION_ID && pendingMessage?.sessionId === session?.id);
+	const visibleMessages = (!messages?.length || isCurrSession) && pendingMessage?.data?.message ? [...messages, pendingMessage] : messages;
+
+	// Check if any message is currently streaming (has chunks but not null-terminated)
+	const hasStreamingMessage = visibleMessages.some((msg) => {
+		const chunks = msg?.data?.chunks;
+		return chunks !== undefined && (chunks.length === 0 || chunks[chunks.length - 1] !== null);
+	});
+	const canStopProcessing = !!session?.id && session.id !== NEW_SESSION_ID && (showThinking || showTyping || hasStreamingMessage);
+	const showStopButton = canStopProcessing && !message.trim();
+
+	const showLogs = (i: number) => (event: EventInterface) => {
+		if (MINIMAL_UI) return;
+		event.index = i;
+		setShowLogsForMessage(event.id === showLogsForMessage?.id ? null : event);
+	};
+
+	return (
+		<>
+			<div ref={messagesRef} className={twMerge('flex items-center h-full w-full bg-white gap-[14px] rounded-[10px]', showLogsForMessage && 'bg-green-light')}>
+				<div className={twMerge('h-full w-full pb-[14px] pt-[10px] rounded-[10px] flex flex-col transition-all duration-500 bg-white', showLogsForMessage && 'w-[calc(100%-min(700px,35vw))]')}>
+					<div className='h-full flex flex-col rounded-[10px] m-auto w-full min-w-[unset]'>
+						{/* <div className='h-[58px] bg-[#f5f5f9]'></div> */}
+						{/* <SessoinViewHeader /> */}
+						{/* <div className={twMerge('h-[21px] border-t-0 bg-white')}></div> */}
+						<div className={twMerge('flex flex-col rounded-es-[16px] rounded-ee-[16px] items-center bg-white mx-auto w-full flex-1 overflow-hidden')}>
+							<div
+								ref={scrollContainerRef}
+								onScroll={handleMessagesScroll}
+								className={twJoin(
+									'messages fixed-scroll flex-1 flex flex-col w-full pb-4 overflow-x-hidden'
+									// '[scroll-snap-type:y_mandatory]'
+								)}
+								aria-live='polite'
+								role='log'
+								aria-label='Chat messages'>
+								{/* SSE connection handles errors through reconnection */}
+								{visibleMessages.map((event, i) => (
+									<React.Fragment key={(event.trace_id || 0) + `${i}`}>
+										{!isSameDay(messages[i - 1]?.creation_utc, event.creation_utc) && <DateHeader date={event.creation_utc} isFirst={!i} bgColor='bg-white' />}
+										<div ref={lastMessageRef} className='flex snap-end flex-col max-w-[min(1020px,100%)] w-[1020px] self-center'>
+											<Message
+												flaggedChanged={() => {
+													setRefreshFlag((val) => !val);
+												}}
+												flagged={flaggedItems[event.trace_id]}
+												isFirstMessageInDate={!isSameDay(messages[i - 1]?.creation_utc, event.creation_utc)}
+												isRegenerateHidden={!!isMissingAgent}
+												isInitializing={isInitializingSession}
+												event={event}
+												sameTraceMessages={visibleMessages.filter((e) => e.trace_id === event.trace_id)}
+												isContinual={(event.trace_id === visibleMessages[i - 1]?.trace_id && event.source === visibleMessages[i - 1]?.source) || (event.source === 'customer' && visibleMessages[i - 1]?.source === 'customer')}
+												regenerateMessageFn={regenerateMessageDialog(i)}
+												resendMessageFn={resendMessageDialog(i)}
+												showLogsForMessage={showLogsForMessage}
+												showLogs={showLogs(i)}
+												shouldAutoScroll={shouldAutoScroll}
+												scrollToBottom={scrollToBottom}
+											/>
+										</div>
+									</React.Fragment>
+								))}
+								{((showTyping && !hasStreamingMessage) || showThinking) && (
+									<div ref={lastMessageRef} className='flex snap-end max-w-[min(1020px,100%)] w-[1020px] self-center'>
+										{showTyping && !hasStreamingMessage && (
+											<>
+												<div className='bubblesWrapper snap-end' aria-hidden='true'>
+													<div className='bubbles' />
+												</div>
+												<p className={twMerge('flex items-center font-normal text-[#A9AFB7] text-[14px] font-manrope')}>Typing...</p>
+											</>
+										)}
+										{showThinking && (
+											<div className={twMerge('flex items-start gap-[8px] ps-[16px] font-normal text-[#A9AFB7] text-[14px] font-manrope')}>
+												{/* Spinner pinned to the top (items-start + shrink-0) so it stays put as the stage text grows/wraps. */}
+												<LoaderCircle aria-hidden='true' className='shrink-0 size-[16px] mt-[2px] animate-spin' />
+												{/* items-center keeps the revealed markdown and the trailing "..." inline, as before. */}
+												<div className='flex items-center min-w-0'>
+													{/* Live markdown rendering of the in-flight reveal prefix. */}
+													<Markdown parseIncomplete>{thinkingDisplay.slice(0, thinkingRevealed)}</Markdown>
+													...
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+							<div className={twMerge('w-full flex justify-between', isMissingAgent && 'hidden')}>
+								<Spacer />
+								<div className='group relative border flex-1 border-muted border-solid rounded-[10px] flex flex-row justify-center items-center bg-white p-[0.9rem] ps-[14px] pe-0 h-[48.67px] max-w-[1000px] mb-[26px]'>
+									<Textarea
+										role='textbox'
+										ref={textareaRef}
+										placeholder='Message...'
+										value={message}
+										onKeyDown={handleTextareaKeydown}
+										onChange={(e) => setMessage(e.target.value)}
+										rows={1}
+										className='box-shadow-none placeholder:text-[#282828] resize-none border-none h-full rounded-none min-h-[unset] p-0 whitespace-nowrap no-scrollbar font-manrope font-light text-[16px] leading-[100%] bg-white'
+									/>
+									<Button
+										variant='ghost'
+										data-testid='submit-button'
+										aria-label={showStopButton ? 'Stop current processing' : 'Send message'}
+										title={showStopButton ? 'Stop current processing' : 'Send message'}
+										className={twMerge('max-w-[60px] rounded-full hover:bg-white', showStopButton && 'text-[#D84E4E] hover:text-[#C73939]')}
+										ref={submitButtonRef}
+										disabled={showStopButton ? isStoppingProcessing : !message?.trim() || !agent?.id}
+										onClick={() => (showStopButton ? stopProcessing() : postMessage(message))}>
+										{showStopButton ? (
+											isStoppingProcessing ? (
+												<LoaderCircle aria-hidden='true' className='size-[18px] animate-spin' />
+											) : (
+												<Square aria-hidden='true' className='size-[16px] fill-current' />
+											)
+										) : (
+											<img src='icons/send.svg' alt='' height={19.64} width={21.52} className='h-10' />
+										)}
+									</Button>
+								</div>
+								<Spacer />
+							</div>
+							<div className='w-full'>
+								<Spacer />
+								<div></div>
+								<Spacer />
+							</div>
+						</div>
+					</div>
+				</div>
+				<ErrorBoundary component={<div className='flex h-full min-w-[50%] justify-center items-center text-[20px]'>Failed to load logs</div>}>
+					<div
+						className={twMerge(
+							'fixed top-0 left-[unset] h-full right-0 z-[99] bg-white translate-x-[100%] max-w-[min(700px,35vw)] [box-shadow:0px_0px_30px_0px_#0000001F] w-[min(700px,35vw)] [transition-duration:600ms]',
+							showLogsForMessage && 'translate-x-0'
+						)}>
+						{showLogsForMessage && (
+							<MessageDetails
+								flaggedChanged={() => {
+									setRefreshFlag((val) => !val);
+								}}
+								sameTraceMessages={visibleMessages.filter((e) => e.trace_id === showLogsForMessage.trace_id)}
+								event={showLogsForMessage}
+								regenerateMessageFn={showLogsForMessage?.index ? regenerateMessageDialog(showLogsForMessage.index) : undefined}
+								resendMessageFn={showLogsForMessage?.index || showLogsForMessage?.index === 0 ? resendMessageDialog(showLogsForMessage.index) : undefined}
+								closeLogs={() => setShowLogsForMessage(null)}
+							/>
+						)}
+					</div>
+				</ErrorBoundary>
+			</div>
+		</>
+	);
+};
+
+export default SessionView;

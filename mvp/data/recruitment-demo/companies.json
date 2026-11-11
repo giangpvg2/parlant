@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "items": {
+    "anphu": {
+      "id": "anphu",
+      "name": "Nhà máy An Phú",
+      "location": "Bắc Ninh / Hà Nội",
+      "description": "Doanh nghiệp hư cấu phục vụ demo tuyển công nhân.",
+      "benefits": [
+        "CN001 hỗ trợ bữa trưa; phụ cấp chuyên cần theo JD."
+      ]
+    },
+    "saomai": {
+      "id": "saomai",
+      "name": "Công ty Công nghệ Sao Mai",
+      "location": "Đà Nẵng / Hà Nội",
+      "description": "Doanh nghiệp phần mềm hư cấu phục vụ demo tuyển dụng IT; phát triển ứng dụng web và nền tảng dữ liệu.",
+      "benefits": [
+        "Cấp máy tính làm việc.",
+        "Có người hướng dẫn đối với vị trí thực tập.",
+        "Không thu phí ứng tuyển."
+      ]
+    },
+    "viettech": {
+      "id": "viettech",
+      "name": "Công ty Giải pháp Việt Tech",
+      "location": "Hà Nội / TP. Hồ Chí Minh",
+      "description": "Doanh nghiệp hư cấu cung cấp giải pháp phần mềm, hạ tầng và hỗ trợ IT cho khách hàng doanh nghiệp.",
+      "benefits": [
+        "Cấp máy tính làm việc.",
+        "Ngân sách đào tạo theo chính sách công ty.",
+        "Không thu phí ứng tuyển."
+      ]
+    },
+    "binhminh": {
+      "id": "binhminh",
+      "name": "Nhà máy Bình Minh",
+      "location": "Bình Dương / Đồng Nai / Long An",
+      "description": "Doanh nghiệp sản xuất và kho vận hư cấu phục vụ demo tuyển công nhân.",
+      "benefits": [
+        "Hỗ trợ bữa ăn trong ca.",
+        "Không thu phí ứng tuyển."
+      ]
+    }
+  }
+}

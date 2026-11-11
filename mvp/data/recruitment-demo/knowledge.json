@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "items": {
+    "faq-fee": {
+      "id": "faq-fee",
+      "title": "Phí ứng tuyển",
+      "kind": "faq",
+      "content": "Các vị trí công nhân của Nhà máy An Phú và Nhà máy Bình Minh trong bộ dữ liệu mẫu không thu phí ứng tuyển.",
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "policy-shift": {
+      "id": "policy-shift",
+      "title": "Chính sách ca làm",
+      "kind": "policy",
+      "content": "CN001 làm ca ngày 08:00–17:00, nghỉ Chủ nhật. CN002 luân phiên ca 06:00–14:00 và 14:00–22:00 theo tuần.",
+      "agent_ids": [
+        "cats_worker_v1"
+      ]
+    },
+    "faq-profile": {
+      "id": "faq-profile",
+      "title": "Thông tin đăng ký",
+      "kind": "faq",
+      "content": "Đăng ký quan tâm cần họ tên, số điện thoại và mã vị trí. Không yêu cầu số CCCD hay dữ liệu nhạy cảm trong bản MVP.",
+      "agent_ids": [
+        "cats_worker_v1",
+        "cats_it_v1"
+      ]
+    },
+    "private-it": {
+      "id": "private-it",
+      "title": "Quy trình phỏng vấn IT",
+      "kind": "policy",
+      "content": "Các vị trí IT tại Sao Mai và Việt Tech trong dữ liệu mẫu gồm bước trao đổi với HR, phỏng vấn kỹ thuật và trao đổi kết quả với HR. Nội dung bài kiểm tra kỹ thuật và lịch cụ thể tùy vị trí, cần hỏi HR. Trợ lý chỉ ghi nhận đăng ký quan tâm, không xác nhận trúng tuyển.",
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "it-fee": {
+      "id": "it-fee",
+      "title": "Phí ứng tuyển IT",
+      "kind": "faq",
+      "content": "Các vị trí IT tại Sao Mai và Việt Tech trong bộ dữ liệu mẫu không thu phí ứng tuyển, không yêu cầu chuyển tiền để giữ chỗ phỏng vấn.",
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "it-working-mode": {
+      "id": "it-working-mode",
+      "title": "Làm việc tại văn phòng và hybrid",
+      "kind": "policy",
+      "content": "IT002, IT005 và IT008 làm hybrid: 3 ngày tại văn phòng, 2 ngày từ xa mỗi tuần. Các vị trí IT khác làm tại văn phòng theo JD. Chưa có vị trí làm từ xa hoàn toàn trong bộ dữ liệu mẫu; không tự suy ra chế độ remote từ tên nghề.",
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "it-salary": {
+      "id": "it-salary",
+      "title": "Mức lương IT và trợ cấp thực tập",
+      "kind": "faq",
+      "content": "Mức lương IT trong JD là khoảng gross mỗi tháng, mức cụ thể cần trao đổi với HR theo vị trí. IT010 là trợ cấp thực tập 4.000.000–6.000.000 đồng/tháng gross, chưa phải lương nhân viên chính thức. Không suy ra mức net hoặc tiền thưởng khi JD chưa nêu.",
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    },
+    "it-internship": {
+      "id": "it-internship",
+      "title": "Thực tập Backend Python",
+      "kind": "faq",
+      "content": "IT010 là thực tập Backend Python tại Đà Nẵng trong 3 tháng, tối thiểu 4 ngày/tuần tại văn phòng trong khung 08:30–17:30 từ thứ Hai đến thứ Sáu. Không yêu cầu kinh nghiệm đi làm; cần nền tảng Python, SQL và Git, có người hướng dẫn. Không cam kết chuyển chính thức sau thực tập.",
+      "agent_ids": [
+        "cats_it_v1"
+      ]
+    }
+  }
+}

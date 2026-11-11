@@ -1,0 +1,53 @@
+# Copyright 2026 Emcie Co Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from parlant.core.app_modules.agents import AgentModule
+from parlant.core.app_modules.canned_responses import CannedResponseModule
+from parlant.core.app_modules.context_variables import ContextVariableModule
+from parlant.core.app_modules.indexing import IndexingModule
+from parlant.core.app_modules.relationships import RelationshipModule
+from parlant.core.app_modules.services import ServiceModule
+from parlant.core.app_modules.sessions import SessionModule
+from parlant.core.app_modules.groups import GroupModule
+from parlant.core.app_modules.customers import CustomerModule
+from parlant.core.app_modules.rules import RuleModule
+from parlant.core.app_modules.glossary import GlossaryModule
+
+
+class Application:
+    def __init__(
+        self,
+        agent_module: AgentModule,
+        session_module: SessionModule,
+        service_module: ServiceModule,
+        group_module: GroupModule,
+        customer_module: CustomerModule,
+        rule_module: RuleModule,
+        context_variable_module: ContextVariableModule,
+        relationship_module: RelationshipModule,
+        glossary_module: GlossaryModule,
+        indexing_module: IndexingModule,
+        canned_response_module: CannedResponseModule,
+    ) -> None:
+        self.agents = agent_module
+        self.sessions = session_module
+        self.services = service_module
+        self.groups = group_module
+        self.variables = context_variable_module
+        self.customers = customer_module
+        self.rules = rule_module
+        self.relationships = relationship_module
+        self.glossary = glossary_module
+        self.indexing = indexing_module
+        self.canned_responses = canned_response_module
